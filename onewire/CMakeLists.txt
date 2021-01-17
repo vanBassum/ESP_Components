@@ -6,5 +6,5 @@
 
 set(COMPONENT_ADD_INCLUDEDIRS "." "owb/include")
 set(COMPONENT_SRCS "bus.cpp" "owb/owb.c" "owb/owb_gpio.c" "owb/owb_rmt.c")
-set(PRIV_REQUIRES freertos esp_common)
+#set(PRIV_REQUIRES freertos esp_common)
 register_component()

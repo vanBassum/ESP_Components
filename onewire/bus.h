@@ -13,6 +13,7 @@
 //#include "owb/include/owb.h"
 //#include "owb/include/owb_rmt.h"
 #include "driver/gpio.h"
+#include "../freertos_cpp/semaphore.h"
 
 namespace OneWire
 {
@@ -22,6 +23,7 @@ namespace OneWire
 
 	class Bus
 	{
+		FreeRTOS::RecursiveMutex mutex;
 		owb_rmt_driver_info rmt_driver_info;
 
 
@@ -37,6 +39,8 @@ namespace OneWire
 		uint8_t ReadByte();
 		bool ReadBytes(uint8_t *data, int length);
 		void SelectDevice(Device *device);
+		bool Claim();
+		bool Release();
 
 	};
 

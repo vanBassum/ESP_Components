@@ -29,14 +29,23 @@ namespace OneWire
 		{
 			uint8_t data[2];
 			float val = -999;
+
+			bus->Claim();
 			bus->SelectDevice(this);
 			bus->WriteByte(0x44);		//Convert T
-			while(bus->ReadByte() == 0);
+			bus->Release();
+
+			vTaskDelay(750 / portTICK_PERIOD_MS);
+
+			//this delay can be replaced with, but that would be claiming the bus: while(bus->ReadByte() == 0);
+			bus->Claim();
 			bus->SelectDevice(this);
 			bus->WriteByte(0xBE);		// Read scratchpad
 			bus->ReadBytes(data, 2);
-			val = (float)(data[0]+(data[1]*256))/16;
+			bus->Release();
 
+
+			val = (float)(data[0]+(data[1]*256))/16;
 			return val;
 		}
 

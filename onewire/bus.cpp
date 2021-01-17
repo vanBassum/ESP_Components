@@ -18,6 +18,7 @@ namespace OneWire
 
 	int Bus::Search(Device **devices, int max)
 	{
+		mutex.Take();
 		int num_devices = 0;
 		OneWireBus_SearchState search_state = {0};
 		bool found = false;
@@ -36,7 +37,7 @@ namespace OneWire
 			num_devices++;
 			owb_search_next(owb, &search_state, &found);
 		}
-
+		mutex.Give();
 		return num_devices;
 	}
 
@@ -44,36 +45,61 @@ namespace OneWire
 	bool Bus::ResetPulse()
 	{
 		bool isPresent;
+		mutex.Take();
 		owb_reset(owb, &isPresent);
+		mutex.Give();
 		return isPresent;
 	}
 
 	void Bus::WriteByte(uint8_t data)
 	{
+		mutex.Take();
 		owb_write_byte(owb, data);
+		mutex.Give();
 	}
 
 	void Bus::WriteRomCode(OneWireBus_ROMCode code)
 	{
+		mutex.Take();
 		owb_write_rom_code(owb, code);
+		mutex.Give();
 	}
 
 	void Bus::SelectDevice(Device *device)
 	{
+		mutex.Take();
 		ResetPulse();
 		WriteByte(OWB_ROM_MATCH);
 		WriteRomCode(device->GetCode());
+		mutex.Give();
 	}
 
 	uint8_t Bus::ReadByte()
 	{
+		mutex.Take();
 		uint8_t result;
 		owb_read_byte(owb, &result);
+		mutex.Give();
 		return result;
 	}
 
 	bool Bus::ReadBytes(uint8_t *data, int length)
 	{
-		return owb_read_bytes(owb, data, length) == OWB_STATUS_OK;
+		bool result = false;
+		mutex.Take();
+		result = owb_read_bytes(owb, data, length) == OWB_STATUS_OK;
+		mutex.Give();
+		return result;
 	}
+
+	bool Bus::Claim()
+	{
+		return mutex.Take();
+	}
+
+	bool Bus::Release()
+	{
+		return mutex.Give();
+	}
+
 }
