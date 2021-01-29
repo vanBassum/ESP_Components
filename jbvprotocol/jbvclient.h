@@ -27,7 +27,7 @@ class JBVClient
 	FreeRTOS::Queue<Frame*> pendingFrames = FreeRTOS::Queue<Frame*>(5);
 
 public:
-	Callback<void, JBVClient*, Frame*> *HandleFrame = 0;
+	Callback<void, JBVClient*, Frame*> HandleFrame;
 
 	void SendFrame(Frame *frame)
 	{
@@ -123,8 +123,7 @@ private:
 				case Commands::ReplyLease:	ReplyLease(frame);	break;
 				case Commands::RequestSID:	RequestSID(frame);	break;
 				default:
-					if(HandleFrame != 0)
-						HandleFrame->Invoke(this, frame);
+					HandleFrame.Invoke(this, frame);
 					break;
 				}
 
