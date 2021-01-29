@@ -25,8 +25,7 @@ namespace FreeRTOS
 
 		bool Take()
 		{
-			bool oke = xSemaphoreTakeRecursive(handle, portMAX_DELAY ) == pdTRUE;
-			return oke;
+			return xSemaphoreTakeRecursive(handle, portMAX_DELAY ) == pdTRUE;
 		}
 
 		bool Take(int timeout)
@@ -39,6 +38,51 @@ namespace FreeRTOS
 			return xSemaphoreGiveRecursive(handle) == pdTRUE;
 		}
 
+	};
+
+	class SemaphoreBinary
+	{
+		SemaphoreHandle_t handle = NULL;
+
+	public:
+
+		SemaphoreBinary(bool free = false)
+		{
+			handle = xSemaphoreCreateBinary();
+			if(free)
+				Give();
+		}
+
+		virtual ~SemaphoreBinary()
+		{
+			vSemaphoreDelete(handle);
+			handle = NULL;
+		}
+
+		bool Take()
+		{
+			return xSemaphoreTake(handle, portMAX_DELAY ) == pdTRUE;
+		}
+
+		bool Take(int timeout)
+		{
+			return xSemaphoreTake(handle, timeout / portTICK_PERIOD_MS) == pdTRUE;
+		}
+
+		bool TakeFromISR(int *higherPriorityTaskWoken = NULL)
+		{
+			return xSemaphoreTakeFromISR(handle, higherPriorityTaskWoken) == pdTRUE;
+		}
+
+		bool Give()
+		{
+			return xSemaphoreGive(handle) == pdTRUE;
+		}
+
+		bool GiveFromISR(int *higherPriorityTaskWoken = NULL)
+		{
+			return xSemaphoreGiveFromISR(handle, higherPriorityTaskWoken) == pdTRUE;
+		}
 	};
 }
 

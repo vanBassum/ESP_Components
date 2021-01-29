@@ -8,8 +8,9 @@
 #ifndef COMPONENTS_MISC_MISC_H_
 #define COMPONENTS_MISC_MISC_H_
 
-#include "callback.h"
-
+#include "../misc/callback.h"
+#include "../misc/datetimecpp.h"
+#include "../misc/event.h"
 
 
 #endif /* COMPONENTS_MISC_MISC_H_ */
