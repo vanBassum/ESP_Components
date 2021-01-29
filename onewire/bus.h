@@ -8,12 +8,11 @@
 #ifndef COMPONENTS_ONEWIRE_BUS_H_
 #define COMPONENTS_ONEWIRE_BUS_H_
 
-#include "owb.h"
-#include "owb_rmt.h"
-//#include "owb/include/owb.h"
-//#include "owb/include/owb_rmt.h"
 #include "driver/gpio.h"
 #include "../freertos_cpp/semaphore.h"
+#include "../onewire/devices.h"
+#include "../onewire/owb/include/owb.h"
+#include "../onewire/owb/include/owb_rmt.h"
 
 namespace OneWire
 {
@@ -32,7 +31,7 @@ namespace OneWire
 
 		Bus(gpio_num_t gpio);
 		~Bus();
-		int Search(Device **devices, int max);
+		int Search(Device **devices, int max, Devices type);
 		bool ResetPulse();
 		void WriteByte(uint8_t data);
 		void WriteRomCode(OneWireBus_ROMCode code);
@@ -41,7 +40,6 @@ namespace OneWire
 		void SelectDevice(Device *device);
 		bool Claim();
 		bool Release();
-
 	};
 
 

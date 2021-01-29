@@ -5,7 +5,7 @@
  *      Author: Bas
  */
 
-#include "onewire.h"
+#include "../onewire/onewire.h"
 
 namespace OneWire
 {
@@ -16,7 +16,8 @@ namespace OneWire
 		owb_use_crc(owb, false);  // enable CRC check for ROM code
 	}
 
-	int Bus::Search(Device **devices, int max)
+
+	int Bus::Search(Device **devices, int max, Devices type)
 	{
 		mutex.Take();
 		int num_devices = 0;
@@ -25,22 +26,30 @@ namespace OneWire
 		owb_search_first(owb, &search_state, &found);
 		while (num_devices < max && found)
 		{
+			Device *dev = NULL;
+
 			switch(search_state.rom_code.fields.family[0]) //https://www.owfs.org/index_php_page_family-code-list.html
 			{
 			case 0x28: //DS18B20
-				devices[num_devices] = new DS18B20(this, search_state.rom_code);
+				dev = new DS18B20(this, search_state.rom_code);
 				break;
 			default:
-				devices[num_devices] = new Device(this, search_state.rom_code);
+				dev = new Device(this, search_state.rom_code);
 				break;
 			}
-			num_devices++;
+
+			if(dev != NULL)
+			{
+				if(type == Devices::Any || dev->GetType() == type)
+					devices[num_devices++] = dev;
+				else
+					delete dev;
+			}
 			owb_search_next(owb, &search_state, &found);
 		}
 		mutex.Give();
 		return num_devices;
 	}
-
 
 	bool Bus::ResetPulse()
 	{

@@ -10,6 +10,7 @@
 
 #include "task.h"
 #include "semaphore.h"
-
+#include "queueset.h"
+#include "queue.h"
 
 #endif /* COMPONENTS_FREERTOS_CPP_FREERTOS_H_ */

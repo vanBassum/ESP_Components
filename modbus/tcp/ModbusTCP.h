@@ -18,7 +18,7 @@ namespace Modbus
     	Exception rxResult = Exception::UnknownException;
     	TCPReplyFrame* rxFrame = NULL;
 
-    	void DataRecieved(TCPConnection* sender, uint8_t* data, uint32_t size)
+    	void DataRecieved(Connection* sender, uint8_t* data, uint32_t size)
     	{
     		if(rxFrame != NULL)
     		{

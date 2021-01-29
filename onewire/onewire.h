@@ -9,8 +9,9 @@
 #define COMPONENTS_ONEWIRE_ONEWIRE_H_
 
 
-#include "bus.h"
-#include "Device.h"
-#include "DS18B20.h"
+#include "../onewire/bus.h"
+#include "../onewire/device.h"
+#include "../onewire/devices.h"
+#include "../onewire/ds18b20.h"
 
 #endif /* COMPONENTS_ONEWIRE_ONEWIRE_H_ */

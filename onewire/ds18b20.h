@@ -8,11 +8,11 @@
 #ifndef MAIN_ONEWIRE_DS18B20_H_
 #define MAIN_ONEWIRE_DS18B20_H_
 
+#include "../onewire/bus.h"
+#include "../onewire/device.h"
 #include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "bus.h"
-#include "device.h"
 
 
 namespace OneWire

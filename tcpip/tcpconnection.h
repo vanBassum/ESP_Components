@@ -14,16 +14,13 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 #include <string>
+#include "connection.h"
 #include "../freertos_cpp/freertos.h"
 
 #define ISSET(events, ev)	(events & (uint32_t)ev)
 
-class TCPConnection
+class TCPConnection : public Connection
 {
-public:
-	Callback<void, TCPConnection*, uint8_t*, uint32_t> OnDataReceived;
-
-private:
 	FreeRTOS::NotifyableTask *task;
 
 	int sock = 0;
@@ -181,7 +178,6 @@ public:
 			to_write -= written;
 		}
 	}
-
 
 	TCPConnection()
 	{

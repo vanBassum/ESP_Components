@@ -8,16 +8,13 @@
 #ifndef MAIN_ONEWIRE_DEVICE_H_
 #define MAIN_ONEWIRE_DEVICE_H_
 
-#include "bus.h"
 #include <string>
 
+#include "../onewire/bus.h"
+#include "../onewire/devices.h"
 namespace OneWire
 {
-	enum class Devices
-	{
-		Unknown,
-		DS18B20,
-	};
+
 
 	class Device
 	{
