@@ -46,6 +46,15 @@ public:
 		return 16;
 	}
 
+	//Creates an GUID based on the mac address.
+	static Guid HardwareGuid()
+	{
+		Guid guid;
+		memset(guid.raw, 0, 16);
+		esp_efuse_mac_get_default(guid.raw);
+		return guid;
+	}
+
 	static Guid NewGuid()
 	{
 		Guid guid;
@@ -56,7 +65,7 @@ public:
 	std::string ToString()
 	{
 		char buff[64];
-		sprintf(buff, "%x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x%x", raw[0], raw[1], raw[2], raw[3], raw[4], raw[5], raw[6], raw[7], raw[8], raw[9], raw[10], raw[11], raw[12], raw[13], raw[14], raw[15]);
+		sprintf(buff, "%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X", raw[0], raw[1], raw[2], raw[3], raw[4], raw[5], raw[6], raw[7], raw[8], raw[9], raw[10], raw[11], raw[12], raw[13], raw[14], raw[15]);
 		return buff;
 	}
 

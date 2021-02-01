@@ -47,6 +47,11 @@ public:
 		}
 	}
 
+	Guid GetGuid()
+	{
+		return lease.Key;
+	}
+
 private:
 	void RequestLease()
 	{
@@ -93,6 +98,17 @@ private:
         }
 	}
 
+	void RequestLease(Frame *rx)
+	{
+		return;
+		//Specifically requested from me. So reply our lease.
+		if(rx->RxID == lease.ID)
+		{
+			Frame frame = Frame::PrepareReply(rx, 26, Commands::ReplyLease);
+			lease.ToArray(frame.Data);
+			SendFrame(&frame);
+		}
+	}
 
 	void Work(void *arg)
 	{
@@ -115,13 +131,13 @@ private:
 
 				switch(cmd)
 				{
-				case Commands::INVALID: 						break;
-				case Commands::RequestLease: 					break;
-				case Commands::ReplyID: 						break;
-				case Commands::ReplySID: 						break;
-				case Commands::RequestID:	RequestID(frame);	break;
-				case Commands::ReplyLease:	ReplyLease(frame);	break;
-				case Commands::RequestSID:	RequestSID(frame);	break;
+				case Commands::INVALID: 								break;
+				case Commands::RequestLease:	RequestLease(frame); 	break;
+				case Commands::ReplyID: 								break;
+				case Commands::ReplySID: 								break;
+				case Commands::RequestID:		RequestID(frame);		break;
+				case Commands::ReplyLease:		ReplyLease(frame);		break;
+				case Commands::RequestSID:		RequestSID(frame);		break;
 				default:
 					HandleFrame.Invoke(this, frame);
 					break;

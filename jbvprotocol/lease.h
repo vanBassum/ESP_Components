@@ -52,7 +52,7 @@ public:
 
 	Lease()
 	{
-		Key = Guid::NewGuid();
+		Key = Guid::HardwareGuid();
 	}
 
 	Lease(uint8_t *data)
@@ -72,6 +72,7 @@ public:
 		}
 		return 26;
 	}
+
 };
 
 
