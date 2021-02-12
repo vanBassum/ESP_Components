@@ -10,6 +10,7 @@
 
 #include "stdint.h"
 #include "command.h"
+#include <string>
 
 enum class FrameOPT : uint8_t
 {
@@ -62,6 +63,11 @@ public:
 	uint32_t GetTotalLength()
 	{
 		return DataLength + 2 + 4 + 2 + 2 + 2 + 1 + 1;
+	}
+
+	void Log()
+	{
+		ESP_LOGI("Frame", "(%d -> %d) %x", TxID, RxID, CommandID);
 	}
 
 	static Frame PrepareRequest(uint16_t RxID, uint16_t seq, uint16_t dataLength, Commands cmd, FrameOPT opt = FrameOPT::None)

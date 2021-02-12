@@ -31,6 +31,7 @@ public:
 
 	void SendFrame(Frame *frame)
 	{
+		//frame->Log();
 		if (lease.IsValid() || ((uint8_t)(frame->Options & FrameOPT::Broadcast) > 0))
 		{
 			frame->TxID = lease.ID;
@@ -129,6 +130,7 @@ private:
 			{
 				Commands cmd = (Commands)frame->CommandID;
 
+				//ESP_LOGI("client", "cmdno %d", frame->CommandID);
 				switch(cmd)
 				{
 				case Commands::INVALID: 								break;
@@ -155,6 +157,7 @@ private:
 
 	void FrameRecieved(Frame *frame)
 	{
+		//frame->Log();
 		pendingFrames.Enqueue(&frame, 1000);
 	}
 
@@ -179,7 +182,7 @@ public:
 
 		framing.OnFrameCollected.Bind(this, &JBVClient::FrameRecieved);
 
-		task = new FreeRTOS::Task("JBVClient", 7, 1024 * 2, this, &JBVClient::Work);
+		task = new FreeRTOS::Task("JBVClient", 7, 1024 * 4, this, &JBVClient::Work);
 		task->Run(NULL);
 	}
 
