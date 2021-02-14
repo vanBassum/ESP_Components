@@ -20,14 +20,15 @@ namespace FreeRTOS
 
 	class Task
 	{
-		void *_arg;
-		char const *_name;
-		portBASE_TYPE _priority;
-		portSHORT _stackDepth;
+		void *_arg = 0;
+		char const *_name = 0;
+		portBASE_TYPE _priority = 99;
+		portSHORT _stackDepth = 0;
 		Callback<void, void*> _work;
 
 		static void TaskFunction(void* parm)
 		{
+			//ESP_LOGI("TASK", "TaskFunction");
 			Task* t = static_cast<Task*>(parm);
 			if(t->_work.IsBound())
 				t->_work.Invoke(t->_arg);
@@ -48,7 +49,7 @@ namespace FreeRTOS
 		}
 
 	protected:
-		xTaskHandle taskHandle;
+		xTaskHandle taskHandle = 0;
 
 
 	public:
@@ -62,6 +63,8 @@ namespace FreeRTOS
 		{
 			_work.Bind(fp);
 		}
+
+
 		virtual ~Task()
 		{
 			if(taskHandle != NULL)
@@ -73,8 +76,15 @@ namespace FreeRTOS
 			xTaskCreate(&TaskFunction, _name, _stackDepth, this, _priority, &taskHandle);
 		}
 
-	};
 
+		void Run(void *arg, const BaseType_t _xCoreID)
+		{
+			_arg = arg;
+			xTaskCreatePinnedToCore(&TaskFunction, _name, _stackDepth, this, _priority, &taskHandle, _xCoreID);
+		}
+
+
+	};
 
 
 	class NotifyableTask : public Task
@@ -82,8 +92,8 @@ namespace FreeRTOS
 
 	public:
 
-		template<typename T>
-		NotifyableTask(const char *name, portBASE_TYPE priority, portSHORT stackDepth, T *instance, void (T::*mp)(void *arg)) : Task(name, priority, stackDepth, instance, mp)
+		template<typename R>
+		NotifyableTask(const char *name, portBASE_TYPE priority, portSHORT stackDepth, R *instance, void (R::*mp)(void *arg)) : Task(name, priority, stackDepth, instance, mp)
 		{
 		}
 

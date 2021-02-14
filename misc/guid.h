@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <string.h>
 #include <esp_system.h>
 
 class Guid
