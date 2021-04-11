@@ -10,9 +10,10 @@
 #define COMPONENTS_JBVPROTOCOL_IO_FRAMING_H_
 
 #include "../Misc/Callback.h"
-#include "stdint.h"
-
+#include <stdint.h>
+#include <stdlib.h>
 #include "frame.h"
+
 
 
 #define JSOF	'&'
@@ -20,120 +21,99 @@
 #define JESC	'\\'
 #define JNOP	'*'
 
-class Framing
+#define WRT(x) if(data != NULL && wrPtr < size) data[wrPtr] = x; wrPtr++
+
+namespace JBVProtocol
 {
-    bool startFound = false;
-    bool esc = false;
-    Frame *rxFrame = 0;
-    uint32_t wrPtr = 0;
-public:
 
-    Callback<void, Frame*> OnFrameCollected;
+	class Framing
+	{
+		bool startFound = false;
+		bool esc = false;
+		Frame 		*rxFrame = 0;
+		uint32_t 	wrPtr = 0;
+	public:
 
+		Callback<void, Frame*> OnFrameCollected;
+		Callback<void> OnMallocError;
 
-
-    void Unstuff(uint8_t data)
-    {
-    	bool record = false;
-
-		if (esc)
+		void Unstuff(uint8_t data)
 		{
-			record = true;
-			esc = false;
-		}
-		else
-		{
-			switch (data)
+			bool record = false;
+
+			if (esc)
 			{
-				case JESC:
-					esc = true;
-					break;
-				case JSOF:
-					startFound = true;
-					wrPtr = 0;
-					rxFrame = new Frame();
-					break;
-				case JEOF:
-					startFound = false;
-					OnFrameCollected.Invoke(rxFrame);
-					//delete rxFrame;
-					rxFrame = 0;
+				record = true;
+				esc = false;
+			}
+			else
+			{
+				switch (data)
+				{
+					case JESC:
+						esc = true;
+						break;
 
-					break;
-				case JNOP:
-					break;
-				default:
-					record = true;
-					break;
+					case JSOF:
+						startFound = true;
+						rxFrame = new Frame();
+						wrPtr = 0;
+						break;
+
+					case JEOF:
+						{
+							startFound = false;
+							OnFrameCollected.Invoke(rxFrame);
+						}
+						break;
+
+					case JNOP:
+						break;
+
+					default:
+						record = true;
+						break;
+				}
+			}
+			if (record && startFound)
+			{
+				(*rxFrame)[wrPtr++] = data;
 			}
 		}
-		if (record && startFound)
+
+
+		void Unstuff(uint8_t *bt, uint32_t length)
 		{
-			(*rxFrame)[wrPtr++] = data;
+			for(int i=0; i<length; i++)
+				Unstuff(bt[i]);
 		}
 
-    }
+
+		Callback<void, Frame*> OnEscapedFrame;
 
 
-    void Unstuff(uint8_t *bt, uint32_t length)
-	{
-    	for(int i=0; i<length; i++)
-    		Unstuff(bt[i]);
-	}
 
-
-    static uint32_t GetEscapedSize(Frame *txFrame)
-    {
-    	uint32_t unEscapedSize = txFrame->GetTotalLength();
-    	uint32_t escapedSize = 0;
-
-    	escapedSize++;
-
-    	for(uint32_t i=0; i<unEscapedSize; i++)
-    	{
-    		uint8_t in = (*txFrame)[i];
-    		if(in == JSOF || in == JEOF || in == JESC || in == JNOP)
-    			escapedSize++;
-    		escapedSize++;
-    	}
-
-    	escapedSize++;
-
-    	return escapedSize;
-    }
-
-    static uint32_t EscapeFrame(Frame *txFrame, uint8_t *data, uint32_t size)
-    {
-    	uint32_t unEscapedSize = txFrame->GetTotalLength();
-    	uint32_t wr = 0;
-
-    	data[wr++] = JSOF;
-
-		for(int i=0; i<unEscapedSize; i++)
+		static uint32_t EscapeFrame(Frame *txFrame, uint8_t *data, uint32_t size)
 		{
-			if(wr >= size)
-				return 0;
+			int totalSize = txFrame->GetTotalLength();
+			int wrPtr = 0;
+			WRT(JSOF);
+			for(int rdPtr = 0; rdPtr < totalSize; rdPtr++)
+			{
+				uint8_t d = (*txFrame)[rdPtr];
 
-			uint8_t in = (*txFrame)[i];
-			if(in == JSOF || in == JEOF || in == JESC || in == JNOP)
-				data[wr++] = JESC;
+				if(d == JSOF || d == JEOF || d == JESC || d == JNOP)
+				{
+					WRT(JESC);
+				}
+				WRT(d);
+			}
 
-			if(wr >= size)
-				return 0;
-
-			data[wr++] = in;
+			WRT(JEOF);
+			return wrPtr;
 		}
-
-		if(wr >= size)
-			return 0;
-
-		data[wr++] = JEOF;
-		return wr;
-    }
-
-
-};
-
+	};
+}
 
 
 

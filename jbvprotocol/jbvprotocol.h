@@ -8,7 +8,7 @@
 #ifndef MAIN_CPP_LIB_JBVPROTOCOL_H_
 #define MAIN_CPP_LIB_JBVPROTOCOL_H_
 
-#include "jbvclient.h"
+#include "client.h"
 #include "frame.h"
 #include "command.h"
 

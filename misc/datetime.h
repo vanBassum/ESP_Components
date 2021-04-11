@@ -17,35 +17,47 @@
 
 class DateTime
 {
-	struct tm _time;
+
 public:
+
+	uint64_t utc = 0;
 
 	void Clear()
 	{
-		_time.tm_sec   = 0;
-		_time.tm_min   = 0;
-		_time.tm_hour  = 0;
-		_time.tm_mday  = 0;
-		_time.tm_mon   = 0;
-		_time.tm_year  = 0;
-		_time.tm_wday  = 0;
-		_time.tm_yday  = 0;
-		_time.tm_isdst = 0;
+		utc = 0;
 	}
 
+	static DateTime FromUTC(uint64_t u)
+	{
+		DateTime dt;
+		dt.utc = u;
+		return dt;
+	}
+
+	static DateTime Now()
+	{
+		DateTime dt;
+		dt.utc = time(NULL);
+		return dt;
+	}
+
+	static DateTime Empty()
+	{
+		DateTime dt;
+		dt.utc = 0;
+		return dt;
+	}
+
+
+
+/*
 	time_t MKTime() const
 	{
 		struct tm tm = _time;
 		return mktime(&tm);
 	}
 
-	static DateTime Now()
-	{
-		time_t t = time(NULL);
-		struct tm *now = localtime(&t);
 
-		return FromTM(*now);
-	}
 
 	static DateTime Empty()
 	{
@@ -93,21 +105,21 @@ public:
 		return buff;
 	}
 
-
+*/
 };
 
 
 
-inline bool operator==(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.MKTime(), rhs.MKTime()) == 0; }
-inline bool operator!=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.MKTime(), rhs.MKTime()) != 0; }
-inline bool operator< (DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.MKTime(), rhs.MKTime()) <  0; }
-inline bool operator> (DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.MKTime(), rhs.MKTime()) >  0; }
-inline bool operator<=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.MKTime(), rhs.MKTime()) <= 0; }
-inline bool operator>=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.MKTime(), rhs.MKTime()) >= 0; }
+inline bool operator==(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) == 0; }
+inline bool operator!=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) != 0; }
+inline bool operator< (DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) <  0; }
+inline bool operator> (DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) >  0; }
+inline bool operator<=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) <= 0; }
+inline bool operator>=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) >= 0; }
 
 
-inline TimeSpan operator-(DateTime const &lhs, DateTime const &rhs) { return TimeSpan::FromSeconds(lhs.MKTime() - rhs.MKTime()); }
-
+inline TimeSpan operator-(DateTime const &lhs, DateTime const &rhs) { return TimeSpan::FromSeconds(lhs.utc - rhs.utc); }
+inline DateTime operator+(DateTime const &lhs, TimeSpan const &rhs) { return DateTime::FromUTC(lhs.utc + rhs.ticks); }
 
 
 

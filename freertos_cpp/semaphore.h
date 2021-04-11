@@ -14,6 +14,33 @@
 namespace FreeRTOS
 {
 
+	class Mutex
+	{
+		SemaphoreHandle_t handle = NULL;
+	public:
+		Mutex()
+		{
+			handle = xSemaphoreCreateMutex();
+		}
+
+		bool Take()
+		{
+			return xSemaphoreTake(handle, portMAX_DELAY ) == pdTRUE;
+		}
+
+		bool Take(int timeout)
+		{
+			return xSemaphoreTake(handle, timeout / portTICK_PERIOD_MS) == pdTRUE;
+		}
+
+		bool Give()
+		{
+			return xSemaphoreGive(handle) == pdTRUE;
+		}
+
+	};
+
+
 	class RecursiveMutex
 	{
 		SemaphoreHandle_t handle = NULL;
@@ -37,7 +64,6 @@ namespace FreeRTOS
 		{
 			return xSemaphoreGiveRecursive(handle) == pdTRUE;
 		}
-
 	};
 
 	class SemaphoreBinary

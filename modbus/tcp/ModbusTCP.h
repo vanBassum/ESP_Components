@@ -5,7 +5,7 @@
 #include "../../modbus/tcp/TCPReplyFrame.h"
 #include "../../modbus/tcp/TCPRequestFrame.h"
 #include "../../freertos_cpp/freertos.h"
-#include "../../tcpip/tcpconnection.h"
+#include "../../tcpip/tcpsocket.h"
 
 namespace Modbus
 {
@@ -13,7 +13,7 @@ namespace Modbus
 
     class ModbusTCP : public Modbus
     {
-    	TCPConnection tcp;
+    	TCPSocket tcp;
     	FreeRTOS::SemaphoreBinary semphr;
     	Exception rxResult = Exception::UnknownException;
     	TCPReplyFrame* rxFrame = NULL;

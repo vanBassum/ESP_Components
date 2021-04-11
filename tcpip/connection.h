@@ -16,6 +16,7 @@ class Connection
 {
 
 public:
+	virtual ~Connection(){}
 	Callback<void, Connection*, uint8_t*, uint32_t> OnDataReceived;
 	virtual void Send(uint8_t* data, uint32_t length) = 0;
 };

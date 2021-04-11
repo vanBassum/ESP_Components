@@ -9,17 +9,18 @@
 #define MAIN_CPP_LIB_JBVPROTOCOL_SOFTWAREID_H_
 
 
-enum class SoftwareID
+
+enum class SoftwareID : uint32_t
 {
-    Unknown = 0,
-    //Router = 1,
-    LeaseServer = 2,
-    TileMapClient = 3,
-    TileMapServer = 4,
-    DPS50xx = 5,
-    TestApp = 6,    //This id can be used when testing stuff. Its a device that doens't really exists.
-    ConnectionServer = 7,
-    DebugTool = 8,
+	Unknown = 0,
+	//Router = 1,
+	LeaseServer = 2,
+	TileMapClient = 3,
+	TileMapServer = 4,
+	DPS50xx = 5,
+	TestApp = 6,    //This id can be used when testing stuff. Its a device that doens't really exists.
+	ConnectionServer = 7,
+	DebugTool = 8,
 	FunctionGenerator = 9,
 };
 

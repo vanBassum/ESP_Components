@@ -37,12 +37,8 @@ namespace FreeRTOS
 
 		Task(const char *name, portBASE_TYPE priority, portSHORT stackDepth)
 		{
-			ESP_LOGI("TASK", "STACK??? %d",  stackDepth);
-
 			if(stackDepth < configMINIMAL_STACK_SIZE)
 				stackDepth = configMINIMAL_STACK_SIZE;
-
-			ESP_LOGI("TASK", "Task %s created with %d stack", name, stackDepth);
 
 			_arg = 0;
 			_name = name;
@@ -59,7 +55,6 @@ namespace FreeRTOS
 		template<typename T>
 		Task(const char *name, portBASE_TYPE priority, portSHORT stackDepth, T *instance, void (T::*mp)(void *arg)) : Task(name, priority, stackDepth)
 		{
-			ESP_LOGI("TASK", "Task %s run %d stack", name, stackDepth);
 			_work.Bind(instance, mp);
 		}
 
@@ -75,14 +70,7 @@ namespace FreeRTOS
 		void Run(void *arg)
 		{
 			_arg = arg;
-			ESP_LOGI("TASK", "Task %s run %d stack", _name, _stackDepth);
 			xTaskCreate(&TaskFunction, _name, _stackDepth, this, _priority, &taskHandle);
-		}
-
-		void Run(void *arg, int core)
-		{
-			_arg = arg;
-			xTaskCreatePinnedToCore(&TaskFunction, _name, _stackDepth, this, _priority, &taskHandle, core);
 		}
 
 	};
@@ -97,7 +85,6 @@ namespace FreeRTOS
 		template<typename T>
 		NotifyableTask(const char *name, portBASE_TYPE priority, portSHORT stackDepth, T *instance, void (T::*mp)(void *arg)) : Task(name, priority, stackDepth, instance, mp)
 		{
-			ESP_LOGI("TASK", "Task %s run %d stack", name, stackDepth);
 		}
 
 		NotifyableTask(const char *name, portBASE_TYPE priority, portSHORT stackDepth, void (*fp)(void *arg)) : Task(name, priority, stackDepth, fp)

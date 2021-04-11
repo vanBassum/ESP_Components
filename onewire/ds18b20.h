@@ -25,19 +25,18 @@ namespace OneWire
 		{
 		}
 
-		float GetTemp()
+		void StartReading()
 		{
-			uint8_t data[2];
-			float val = -999;
-
 			bus->Claim();
 			bus->SelectDevice(this);
 			bus->WriteByte(0x44);		//Convert T
 			bus->Release();
+		}
 
-			vTaskDelay(750 / portTICK_PERIOD_MS);
-
-			//this delay can be replaced with, but that would be claiming the bus: while(bus->ReadByte() == 0);
+		float GetReading()
+		{
+			uint8_t data[2];
+			float val = -999;
 			bus->Claim();
 			bus->SelectDevice(this);
 			bus->WriteByte(0xBE);		// Read scratchpad
@@ -48,6 +47,16 @@ namespace OneWire
 			val = (float)(data[0]+(data[1]*256))/16;
 			return val;
 		}
+
+		float GetTemp()
+		{
+			StartReading();
+			vTaskDelay(750 / portTICK_PERIOD_MS);	//this delay can be replaced with, but that would be claiming the bus: while(bus->ReadByte() == 0);
+			return GetReading();
+		}
+
+
+
 
 
 		virtual Devices GetType()

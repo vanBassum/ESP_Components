@@ -13,8 +13,10 @@
 
 class TimeSpan
 {
-	int64_t ticks;	//Seconds
+
 public:
+
+	int64_t ticks;	//Seconds
 
 	TimeSpan(int64_t t)
 	{
