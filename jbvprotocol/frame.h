@@ -17,6 +17,9 @@
     inline T& operator&= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) &= static_cast<std::underlying_type<T>::type>(b) ); }   \
     inline T& operator^= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) ^= static_cast<std::underlying_type<T>::type>(b) ); }
 
+#define HASFLAG(ENUM, FLAGS)  (ENUM & (FLAGS)) == (FLAGS)
+
+
 #include "stdint.h"
 #include <string>
 #include <vector>
@@ -27,30 +30,30 @@ namespace JBVProtocol
 	class Framing;
 
 
-	enum class FrameOptions : uint8_t
+	enum class Options : uint8_t
 	{
 		None		= 0,
-		Broadcast 	= (1<<0),	//Frame will be send to all within the network.
-		ASCII		= (1<<1),	//The data field has to be interpreted as ASCII, also the reply will be send in ASCII.
+		Broadcast	= (1<<0),	// when true, message is send to all clients in network. When frame is reply and broadcast, the frame will not be handled as broadcast!
+		ASCII		= (1<<1),	// when true, commands are send as ASCII otherwise commands are send as raw data, currently only ascii mode supported.
+		Request 	= (1<<2),	// frame is either a request or a reply.
+		//RFU		= (1<<3),	// Suggestion: CRC, true when CRC of frame is also send. Might be helpful when using things like RS232.
+		//RFU 		= (1<<4),	// Suggestion: Encryption, Together with next field determines what encryption is used. (Since this is the first byte, the rest of the message can be encrypted.)
+		//RFU 		= (1<<5),	// Suggestion: Encryption,
+		//RFU		= (1<<6),	//
+		//RFU		= (1<<7),	//
+
 	};
 
-	ENUM_FLAG_OPERATORS(FrameOptions);
-
-	enum class FrameTypes : uint8_t
-	{
-		ProtocolFrame 	= 0x00,
-		DataFrame 		= 0x01,
-	};
-
-
+	ENUM_FLAG_OPERATORS(Options);
 
 
 
 	class Frame
 	{
-		uint8_t 	Options		= 0;
+
 
 	public:
+		Options 	Opts		= Options::None;
 		uint8_t 	Hops 		= 0;
 		uint32_t 	TxID  		= 0;
 		uint32_t 	RxID  		= 0;
@@ -62,26 +65,6 @@ namespace JBVProtocol
 		virtual ~Frame();
 		std::string ToString();
 
-		FrameTypes GetType()
-		{
-			return (FrameTypes)((Options & 0xF0) >> 4);
-		}
-
-		void SetType(FrameTypes ty)
-		{
-			Options = (uint8_t)((Options & 0x0F) | (((uint8_t)ty << 4) & 0xF0));
-		}
-
-
-		FrameOptions GetOptions()
-		{
-			return (FrameOptions)((Options & 0x0F));
-		}
-
-		void SetOptions(FrameOptions opt)
-		{
-			Options = (uint8_t)((Options & 0xF0) | ((uint8_t)opt & 0x0F));
-		}
 
 		bool SetData(const void *data, int len)
 		{
@@ -97,11 +80,41 @@ namespace JBVProtocol
 			return false;
 		}
 
+
+		//Only in ASCII mode
+		std::string GetCommand()
+		{
+			std::string s;
+			if(HASFLAG(Opts, Options::ASCII))
+			{
+				bool esc = false;
+				for(int i = 0; i<DataLength; i++)
+				{
+
+					if(esc)
+					{
+						s+=Data[i];
+						esc = false;
+					}
+					else
+					{
+						if(Data[i] == '\\')
+							esc = true;
+						else if(Data[i] == ' ')
+							return s;
+						else
+							s+=Data[i];
+					}
+				}
+			}
+			return s;
+		}
+
+		//Only in ASCII mode
 		std::vector<std::string> GetArgs()
 		{
 			std::vector<std::string> list;
-			FrameOptions opts = GetOptions();
-			if((opts & FrameOptions::ASCII) == FrameOptions::ASCII)
+			if((Opts & Options::ASCII) == Options::ASCII)
 			{
 				std::string s;
 				bool esc = false;
@@ -141,7 +154,7 @@ namespace JBVProtocol
 		{
 			switch(index)
 			{
-			case 0: return *(uint8_t*) &Options;
+			case 0: return *(uint8_t*) &Opts;
 			case 1: return *(uint8_t*) &Hops;
 			case 2: return ((uint8_t*) &TxID)[3];
 			case 3: return ((uint8_t*) &TxID)[2];
@@ -158,7 +171,7 @@ namespace JBVProtocol
 			default:
 				if(Data == 0)
 					Data = (uint8_t*) malloc(DataLength);
-				return Data[index - 14];
+			return Data[index - 14];	//TODO: Check malloc!!!
 			}
 		}
 

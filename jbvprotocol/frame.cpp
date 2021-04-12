@@ -31,7 +31,7 @@ namespace JBVProtocol
 	{
 
 		std::string str;
-		str+= "Opt = " + std::to_string(Options) + ", ";
+		str+= "Opt = " + std::to_string((uint8_t)Opts) + ", ";
 		str+= "Hops = " + std::to_string(Hops) + ", ";
 		str+= "TxID = " + std::to_string(TxID) + ", ";
 		str+= "RxID = " + std::to_string(RxID) + ", ";
