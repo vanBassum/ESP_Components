@@ -13,7 +13,7 @@
 
 #include "../modbus/misc.h"
 #include "../modbus/modbus.h"
-#include "../freertos_cpp/freertos.h"
+#include "../rtos/freertos.h"
 
 namespace Modbus
 {

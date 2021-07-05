@@ -8,9 +8,10 @@
 #ifndef COMPONENTS_FREERTOS_CPP_FREERTOS_H_
 #define COMPONENTS_FREERTOS_CPP_FREERTOS_H_
 
-#include "task.h"
-#include "semaphore.h"
-#include "queueset.h"
-#include "queue.h"
+#include "../rtos/queue.h"
+#include "../rtos/queueset.h"
+#include "../rtos/semaphore.h"
+#include "../rtos/task.h"
+#include "../rtos/timer.h"
 
 #endif /* COMPONENTS_FREERTOS_CPP_FREERTOS_H_ */

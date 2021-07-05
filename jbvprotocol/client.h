@@ -9,7 +9,7 @@
 #define MAIN_CPP_LIB_JBVCLIENT_H_
 
 
-#include "../freertos_cpp/freertos.h"
+#include "../rtos/freertos.h"
 #include "command.h"
 #include "../tcpip/connection.h"
 #include "../misc/callback.h"

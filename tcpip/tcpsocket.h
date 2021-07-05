@@ -15,7 +15,7 @@
 #include <lwip/netdb.h>
 #include <string>
 #include "connection.h"
-#include "../freertos_cpp/freertos.h"
+#include "../rtos/freertos.h"
 
 #define ISSET(events, ev)	(events & (uint32_t)ev)
 

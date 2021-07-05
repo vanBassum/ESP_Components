@@ -9,7 +9,7 @@
 #define COMPONENTS_ONEWIRE_BUS_H_
 
 #include "driver/gpio.h"
-#include "../freertos_cpp/semaphore.h"
+#include "../rtos/semaphore.h"
 #include "../onewire/devices.h"
 #include "../onewire/owb/include/owb.h"
 #include "../onewire/owb/include/owb_rmt.h"

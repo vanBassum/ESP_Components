@@ -4,7 +4,7 @@
 #include "../../modbus/modbus.h"
 #include "../../modbus/tcp/TCPReplyFrame.h"
 #include "../../modbus/tcp/TCPRequestFrame.h"
-#include "../../freertos_cpp/freertos.h"
+#include "../../rtos/freertos.h"
 #include "../../tcpip/tcpsocket.h"
 
 namespace Modbus

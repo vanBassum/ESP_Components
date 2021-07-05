@@ -4,7 +4,7 @@
 #include "../modbus/command.h"
 #include "../modbus/commands/ReadHoldingRegisters.h"
 #include "../modbus/commands/WriteSingleRegister.h"
-#include "../freertos_cpp/freertos.h"
+#include "../rtos/freertos.h"
 
 //https://www.fernhillsoftware.com/help/drivers/modbus/modbus-protocol.html
 namespace Modbus

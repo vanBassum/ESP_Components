@@ -12,8 +12,9 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+
+#include "../rtos/queueset.h"
 #include "esp_log.h"
-#include "queueset.h"
 
 
 namespace FreeRTOS

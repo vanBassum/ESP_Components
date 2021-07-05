@@ -1,5 +1,5 @@
 #pragma once
-#include "../../freertos_cpp/freertos.h"
+#include "../../rtos/freertos.h"
 #include "../../modbus/exceptions.h"
 #include "../../modbus/modbus.h"
 #include "../../modbus/rtu/RTUReplyFrame.h"
