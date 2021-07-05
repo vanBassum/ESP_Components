@@ -37,6 +37,13 @@ public:
 		container->AddProperty(this);
 	}
 
+	Prop(PropertyContainer *container, std::string name, T defVal)
+	{
+		Name = name;
+		val = defVal;
+		container->AddProperty(this);
+	}
+
 	T Get()
 	{	//TODO protect this???
 		return val;
