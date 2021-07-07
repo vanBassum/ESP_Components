@@ -9,8 +9,9 @@
 #define MAIN_ESPLIB_MISC_PROPERTYBASE_H_
 
 #include <cJSON.h>
+#include <nvs.h>
 #include "../rtos/semaphore.h"
-#include "nvs.h"
+
 
 enum class Types
 {
@@ -32,19 +33,14 @@ enum class Types
 
 class PropertyBase
 {
-protected:
-
-	FreeRTOS::Mutex mutex;
 public:
-	virtual void* GetValPtr() = 0;
 	std::string Name;
 	virtual ~PropertyBase(){}
 	virtual Types GetType() = 0;
-	cJSON* ToJSON();
-	void FromJSON(cJSON* json);
-
-	void SaveToNVS(nvs_handle handle, std::string path);
-	void LoadFromNVS(nvs_handle handle, std::string path);
+	virtual cJSON* ToJSON() = 0;
+	virtual void FromJSON(cJSON* json) = 0;
+	virtual void SaveToNVS(nvs_handle handle, std::string path) = 0;
+	virtual void LoadFromNVS(nvs_handle handle, std::string path) = 0;
 };
 
 

@@ -145,8 +145,10 @@ namespace Swagger
 					case Types::STRING:		d->AddSimpleProp(x->Name, "string" ); break;
 					case Types::PROPCONT:
 					{
-						PropertyContainer* nestedPC = reinterpret_cast<PropertyContainer*>(x->GetValPtr());
-						Definition* nestedD = GetDefinition(nestedPC);
+						Prop<PropertyContainer>* prop = reinterpret_cast<Prop<PropertyContainer>*>(&x);
+
+						PropertyContainer nestedPC = prop->Get();
+						Definition* nestedD = GetDefinition(&nestedPC);
 						d->AddRefProp(x->Name, nestedD->name);
 						break;
 					}

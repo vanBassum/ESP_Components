@@ -11,9 +11,7 @@
 #include <cJSON.h>
 #include <vector>
 #include "propertybase.h"
-#include "esp_system.h"
-#include "nvs_flash.h"
-#include "nvs.h"
+#include <nvs.h>
 
 
 class PropertyContainer		//Cant contain abstracts, is_convertible doenst work otherwise
