@@ -10,7 +10,7 @@
 
 #include <cJSON.h>
 #include "../rtos/semaphore.h"
-
+#include "nvs.h"
 
 enum class Types
 {
@@ -42,6 +42,9 @@ public:
 	virtual Types GetType() = 0;
 	cJSON* ToJSON();
 	void FromJSON(cJSON* json);
+
+	void SaveToNVS(nvs_handle handle, std::string path);
+	void LoadFromNVS(nvs_handle handle, std::string path);
 };
 
 

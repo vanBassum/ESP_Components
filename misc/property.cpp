@@ -9,6 +9,79 @@
 #include <esp_log.h>
 #include "property.h"
 #include <propertycontainer.h>
+#include "nvs.h"
+
+
+	void PropertyBase::SaveToNVS(nvs_handle handle, std::string path)
+	{
+		std::string pn = path + Name;
+		Types type = GetType();
+		mutex.Take();
+		switch(type)
+		{
+		case Types::UINT8_t:	nvs_set_u8(handle, pn.c_str(),  *((uint8_t*) GetValPtr()));   break;
+		case Types::UINT16_t:	nvs_set_u16(handle, pn.c_str(), *((uint16_t*)GetValPtr()));  break;
+		case Types::UINT32_t:	nvs_set_u32(handle, pn.c_str(), *((uint32_t*)GetValPtr()));  break;
+		case Types::UINT64_t:	nvs_set_u64(handle, pn.c_str(), *((uint64_t*)GetValPtr()));  break;
+		case Types::INT8_t:		nvs_set_i8(handle, pn.c_str(),  *((int8_t*)  GetValPtr()));   break;
+		case Types::INT16_t:	nvs_set_i16(handle, pn.c_str(), *((int16_t*) GetValPtr()));  break;
+		case Types::INT32_t:	nvs_set_i32(handle, pn.c_str(), *((int32_t*) GetValPtr()));  break;
+		case Types::INT64_t:	nvs_set_i64(handle, pn.c_str(), *((int64_t*) GetValPtr()));  break;
+		case Types::FLOAT:		nvs_set_u32(handle, pn.c_str(), *((uint32_t*)  GetValPtr()));  break;
+		case Types::DOUBLE:		nvs_set_u64(handle, pn.c_str(), *((uint64_t*)  GetValPtr()));  break;
+		case Types::STRING:		nvs_set_str(handle, pn.c_str(), ((std::string*)GetValPtr())->c_str());  break;
+		case Types::PROPCONT:
+		{
+			PropertyContainer* pc = (PropertyContainer*)GetValPtr();
+			pc->SaveToNVS(handle, pn + "/");
+		}
+			break;
+		default:
+			break;
+		}
+		mutex.Give();
+	}
+
+	void PropertyBase::LoadFromNVS(nvs_handle handle, std::string path)
+	{
+		std::string pn = path + Name;
+		Types type = GetType();
+		mutex.Take();
+		switch(type)
+		{
+		case Types::UINT8_t:	nvs_get_u8(handle, pn.c_str(),  ((uint8_t*) GetValPtr()));   break;
+		case Types::UINT16_t:	nvs_get_u16(handle, pn.c_str(), ((uint16_t*)GetValPtr()));  break;
+		case Types::UINT32_t:	nvs_get_u32(handle, pn.c_str(), ((uint32_t*)GetValPtr()));  break;
+		case Types::UINT64_t:	nvs_get_u64(handle, pn.c_str(), ((uint64_t*)GetValPtr()));  break;
+		case Types::INT8_t:		nvs_get_i8(handle, pn.c_str(),  ((int8_t*)  GetValPtr()));   break;
+		case Types::INT16_t:	nvs_get_i16(handle, pn.c_str(), ((int16_t*) GetValPtr()));  break;
+		case Types::INT32_t:	nvs_get_i32(handle, pn.c_str(), ((int32_t*) GetValPtr()));  break;
+		case Types::INT64_t:	nvs_get_i64(handle, pn.c_str(), ((int64_t*) GetValPtr()));  break;
+		case Types::FLOAT:		nvs_get_u32(handle, pn.c_str(), ((uint32_t*)  GetValPtr()));  break;
+		case Types::DOUBLE:		nvs_get_u64(handle, pn.c_str(), ((uint64_t*)  GetValPtr()));  break;
+		case Types::STRING:
+		{
+			size_t required_size;
+			nvs_get_str(handle, pn.c_str(), NULL, &required_size);
+			char* server_name = (char *)malloc(required_size);
+			nvs_get_str(handle, pn.c_str(), server_name, &required_size);
+			*((std::string*)GetValPtr()) = std::string(server_name);
+
+		}
+			break;
+		case Types::PROPCONT:
+		{
+			PropertyContainer* pc = (PropertyContainer*)GetValPtr();
+			pc->LoadFromNVS(handle, pn + "/");
+		}
+			break;
+		default:
+			break;
+		}
+		mutex.Give();
+	}
+
+
 
 	cJSON* PropertyBase::ToJSON()
 	{
