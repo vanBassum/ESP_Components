@@ -90,6 +90,45 @@ public:
 		return next;
 	}
 
+	uint32_t FindOldestSector()
+	{
+		uint32_t addr = 0x0;
+		uint32_t next = 0x0;
+		bool sens = true;
+		bool addFull = false;
+		SectorHeader header;
+
+		while(addr < partitionSize)
+		{
+			esp_partition_read(partition, addr, &header, sizeof(header));
+
+
+			if(header.flags & Flags::Empty)			//Sector is empty
+			{
+				sens = true;
+			}
+			else if(header.flags & Flags::Active)	//Sector is active
+			{
+				if(sens && !addFull)
+				{
+					next = addr;
+				}
+				sens = true;
+			}
+			else									//Sector is full
+			{
+				if(sens)
+				{
+					next = addr;
+					addFull = true;
+				}
+			}
+			addr += sectorSize;
+		}
+
+		return next;
+	}
+
 	//Returns the start address of the first empty spot in the sector. Or 0 if error!
 	uint32_t FindEmptySpace(uint32_t sectorAddr)
 	{
