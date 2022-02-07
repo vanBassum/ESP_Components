@@ -65,17 +65,24 @@ public:
 	static TFT Get_ILI9341()
 	{
 		TFT tft;
-
 		tft.Width = 240;
 		tft.Height = 320;
 		tft.Offsetx = 0;
 		tft.Offsety = 0;
 		tft.Model = Models::ILI9341;
-
 		return tft;
 	};
 
-
+	static TFT Get_ST7735()
+	{
+		TFT tft;
+		tft.Width = 128;
+		tft.Height = 128;
+		tft.Offsetx = 2;
+		tft.Offsety = 1;
+		tft.Model = Models::ST7735;
+		return tft;
+	};
 
 
 
@@ -288,6 +295,16 @@ public:
 		lcdUnsetFontFill( & dev);
 	}
 
+	void DisplayOff()
+	{
+		lcdDisplayOff(& dev);
+	}
+
+	void DisplayOn()
+	{
+		lcdDisplayOn(& dev);
+	}
+	
 
 	/*
 
@@ -312,15 +329,7 @@ public:
 
 
 
-	void DisplayOff()
-	{
-		lcdDisplayOff( & dev);
-	}
 
-	void DisplayOn()
-	{
-		lcdDisplayOn( & dev);
-	}
 
 	void InversionOff()
 	{
