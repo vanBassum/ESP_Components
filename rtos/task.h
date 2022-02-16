@@ -17,83 +17,73 @@
 namespace FreeRTOS
 {
 
-
-	class Task
+	template<typename TaskType>
+	class TaskBase
 	{
-		void *_arg;
-		char const *_name;
+		void* _arg;
+		char const* _name;
 		portBASE_TYPE _priority;
 		portSHORT _stackDepth;
-		Callback<void, void*> _work;
+		Callback<void, TaskType*, void*> _work;
 
 		static void TaskFunction(void* parm)
 		{
-			Task* t = static_cast<Task*>(parm);
-			if(t->_work.IsBound())
-				t->_work.Invoke(t->_arg);
+			TaskType* t = static_cast<TaskType*>(parm);
+			if (t->_work.IsBound())
+				t->_work.Invoke(t, t->_arg);
 			t->taskHandle = NULL;
 			vTaskDelete(NULL);
 		}
-
-		Task(const char *name, portBASE_TYPE priority, portSHORT stackDepth)
-		{
-			if(stackDepth < configMINIMAL_STACK_SIZE)
-				stackDepth = configMINIMAL_STACK_SIZE;
-
-			_arg = 0;
-			_name = name;
-			_priority = priority;
-			_stackDepth = stackDepth;
-			taskHandle = NULL;
-		}
-
 	protected:
 		xTaskHandle taskHandle;
 
 
 	public:
+		virtual ~Task()
+		{
+			if (taskHandle != NULL)
+				vTaskDelete(taskHandle);
+		}
+
 		template<typename T>
-		Task(const char *name, portBASE_TYPE priority, portSHORT stackDepth, T *instance, void (T::*mp)(void *arg)) : Task(name, priority, stackDepth)
+		void SetCallback(T* instance, void (T::* mp)(TaskType*, void* arg))
 		{
 			_work.Bind(instance, mp);
 		}
 
-		Task(const char *name, portBASE_TYPE priority, portSHORT stackDepth, void (*fp)(void *arg)) : Task(name, priority, stackDepth)
+		void SetCallback(void (*fp)(TaskType*, void* arg))
 		{
 			_work.Bind(fp);
 		}
-		virtual ~Task()
+
+		virtual void Run(const char* name, portBASE_TYPE priority, portSHORT stackDepth, void* arg = NULL)
 		{
-			if(taskHandle != NULL)
-				vTaskDelete(taskHandle);
-		}
-		void Run(void *arg)
-		{
+			if (stackDepth < configMINIMAL_STACK_SIZE)
+				stackDepth = configMINIMAL_STACK_SIZE;
+
 			_arg = arg;
+			_name = name;
+			_priority = priority;
+			_stackDepth = stackDepth;
 			xTaskCreate(&TaskFunction, _name, _stackDepth, this, _priority, &taskHandle);
 		}
-
 	};
 
 
 
-	class NotifyableTask : public Task
+	class Task : public TaskBase<Task>
+	{
+		
+	};
+
+
+	class NotifyableTask : public TaskBase<NotifyableTask>
 	{
 
 	public:
-
-		template<typename T>
-		NotifyableTask(const char *name, portBASE_TYPE priority, portSHORT stackDepth, T *instance, void (T::*mp)(void *arg)) : Task(name, priority, stackDepth, instance, mp)
+		bool WaitForNotification(uint32_t* pulNotificationValue, int timeout)
 		{
-		}
-
-		NotifyableTask(const char *name, portBASE_TYPE priority, portSHORT stackDepth, void (*fp)(void *arg)) : Task(name, priority, stackDepth, fp)
-		{
-		}
-
-		bool GetNotifications(uint32_t *pulNotificationValue, int timeout)
-		{
-			return xTaskNotifyWait( 0x0000, 0xFFFF, pulNotificationValue, timeout / portTICK_PERIOD_MS) == pdPASS;
+			return xTaskNotifyWait(0x0000, 0xFFFF, pulNotificationValue, timeout / portTICK_PERIOD_MS) == pdPASS;
 		}
 
 		void Notify(uint32_t bits)
@@ -106,15 +96,11 @@ namespace FreeRTOS
 			xTaskNotifyFromISR(taskHandle, bits, eSetBits, NULL);
 		}
 
-		void NotifyFromISR(uint32_t bits, BaseType_t *pxHigherPriorityTaskWoken)
+		void NotifyFromISR(uint32_t bits, BaseType_t* pxHigherPriorityTaskWoken)
 		{
 			xTaskNotifyFromISR(taskHandle, bits, eSetBits, pxHigherPriorityTaskWoken);
 		}
 	};
-
-
-
-
 
 
 

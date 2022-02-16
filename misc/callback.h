@@ -66,7 +66,7 @@ public:
 template<typename R, typename ...Args>
 class Callback
 {
-	CallbackHandler<R, Args...> *callback = 0;
+	CallbackHandler<R, Args...> *callback = NULL;
 
 public:
 	Callback()
@@ -74,21 +74,10 @@ public:
 
 	}
 
-	template<typename T>
-	Callback (T* instance, R(T::*method)(Args...))
-	{
-		callback = new CallbackHandlerMethod<T, R, Args...>(instance, method);
-	}
-
-	Callback(R(*func)(Args...))
-	{
-		callback = new CallbackHandlerFunction<R, Args...>(func);
-	}
-
-
 	virtual ~Callback()
 	{
-		delete callback;
+		if(callback != NULL)
+			delete callback;
 	}
 
 	template<typename T>

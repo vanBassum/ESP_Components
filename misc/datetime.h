@@ -22,16 +22,32 @@ public:
 
 	time_t utc = 0;
 
-	void Clear()
+	DateTime()
 	{
-		utc = 0;
+
 	}
 
-	static DateTime FromUTC(time_t u)
+	DateTime(time_t utc)
 	{
-		DateTime dt;
-		dt.utc = u;
-		return dt;
+		this->utc = utc;
+	}
+
+	DateTime(std::string datetime)
+	{
+		struct tm result;
+		if (strptime(datetime.c_str(), "%FT%TZ", &result))
+		{
+			utc = mktime(&result);
+		}
+	}
+
+	DateTime(std::string datetime, std::string format)
+	{
+		struct tm result;
+		if (strptime(datetime.c_str(), format.c_str(), &result))
+		{
+			utc = mktime(&result);
+		}
 	}
 
 	static DateTime Now()
@@ -40,14 +56,6 @@ public:
 		dt.utc = time(NULL);
 		return dt;
 	}
-
-	static DateTime Empty()
-	{
-		DateTime dt;
-		dt.utc = 0;
-		return dt;
-	}
-
 
 
 	std::string ToString()
@@ -127,7 +135,7 @@ inline bool operator>=(DateTime const &lhs, DateTime const &rhs) { return diffti
 
 
 inline TimeSpan operator-(DateTime const &lhs, DateTime const &rhs) { return TimeSpan::FromSeconds(lhs.utc - rhs.utc); }
-inline DateTime operator+(DateTime const &lhs, TimeSpan const &rhs) { return DateTime::FromUTC(lhs.utc + rhs.ticks); }
+inline DateTime operator+(DateTime const &lhs, TimeSpan const &rhs) { return DateTime(lhs.utc + rhs.ticks); }
 
 
 
