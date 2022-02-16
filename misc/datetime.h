@@ -20,14 +20,14 @@ class DateTime
 
 public:
 
-	uint64_t utc = 0;
+	time_t utc = 0;
 
 	void Clear()
 	{
 		utc = 0;
 	}
 
-	static DateTime FromUTC(uint64_t u)
+	static DateTime FromUTC(time_t u)
 	{
 		DateTime dt;
 		dt.utc = u;
@@ -50,6 +50,14 @@ public:
 
 
 
+	std::string ToString()
+	{
+		char buf[sizeof "2011-10-08T07:07:09Z"];
+		strftime(buf, sizeof buf, "%FT%TZ", localtime(&utc));
+		return buf;
+	}
+	
+	
 /*
 	time_t MKTime() const
 	{

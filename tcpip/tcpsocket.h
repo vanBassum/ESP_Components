@@ -21,14 +21,6 @@
 
 class TCPSocket : public Connection
 {
-	FreeRTOS::NotifyableTask *task;
-
-	int sock = 0;
-	bool autoReconnect = false;
-	int addr_family = 0;
-	int ip_protocol = 0;
-	struct sockaddr_in dest_addr;
-
 	enum class State : uint8_t		//Don't change the existing numbers, its used for logging. You can add extra states.
 	{
 		Initializing,
@@ -39,18 +31,24 @@ class TCPSocket : public Connection
 
 	enum class Events : uint32_t	//These are flags!
 	{
-		StateChanged		= (1<<0),
-		Connect				= (1<<1),
-		Disconnect			= (1<<2),
-		DoReceive			= (1<<3),
+		StateChanged = (1 << 0),
+		Connect      = (1 << 1),
+		Disconnect   = (1 << 2),
+		DoReceive    = (1 << 3),
 	};
+	
+	FreeRTOS::NotifyableTask *task;
+	int sock = 0;
+	bool autoReconnect = false;
+	int addr_family = 0;
+	int ip_protocol = 0;
+	struct sockaddr_in dest_addr;
+	State prevState = State::Initializing;
+	State actState 	= State::Initializing;
+	State nextState = State::Initializing;
 
 	void Work(void *arg)
 	{
-		State prevState = State::Initializing;
-		State actState 	= State::Initializing;
-		State nextState = State::Initializing;
-
 		int len;
 		uint8_t rx_buffer[128];
 
@@ -213,6 +211,11 @@ public:
 		ip_protocol = IPPROTO_IP;
 		this->autoReconnect = autoReconnect;
 		task->Notify((uint32_t) Events::Connect);
+	}
+	
+	bool IsConnected()
+	{
+		return actState == State::Connected;
 	}
 
 
