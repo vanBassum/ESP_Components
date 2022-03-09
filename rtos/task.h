@@ -39,7 +39,7 @@ namespace FreeRTOS
 
 
 	public:
-		virtual ~Task()
+		virtual ~TaskBase()
 		{
 			if (taskHandle != NULL)
 				vTaskDelete(taskHandle);

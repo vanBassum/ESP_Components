@@ -23,7 +23,7 @@
 
 namespace JBVProtocol
 {
-
+/*
 	class Client
 	{
 		//Commands:
@@ -35,7 +35,7 @@ namespace JBVProtocol
 		Framing framing;
 		Lease lease;
 		Connection *connection = 0;
-		FreeRTOS::Task *task;
+		FreeRTOS::Task task;
 		FreeRTOS::Queue<Frame*> pendingFrames = FreeRTOS::Queue<Frame*>(5);
 
 		void SendFrame(Frame *frame);
@@ -57,6 +57,7 @@ namespace JBVProtocol
 		//void SendBroadcastReply(Frame *origionalFrame, std::string data);
 		void SetConnection(Connection *con);
 	};
+	*/
 }
 
 

@@ -6,9 +6,11 @@
  */
 
 #include "client.h"
+#include "../rtos/freertos.h"
 
 namespace JBVProtocol
 {
+	/*
 	//Private commands:
 
 	void Client::CMD_HELP(Client *client, Frame *rxFrame)
@@ -54,10 +56,10 @@ namespace JBVProtocol
 		lease.SoftwareId = softID;
 		framing.OnFrameCollected.Bind(this, &Client::FrameRecieved);
 
-		task = new FreeRTOS::Task("JBVClient", 7, 1024 * 3, this, &Client::Work);
-		task->Run(NULL);
+		task.SetCallback(this, &Client::Work);
+		task.Run("JBVClient", 7, 1024 * 3, NULL);
 
-		commandList["HELP"] = new Callback<void, Client*, Frame*>(this, &Client::CMD_HELP);
+		commandList["HELP"] = new Callback<void, Client*, Frame*>();
 		commandList["DLEASE"] = new Callback<void, Client*, Frame*>(this, &Client::CMD_DLEASE);
 		//commandList["CLEASE"] = new Callback<void, Client*, Frame*>(this, &Client::CMD_CLEASE);
 	}
@@ -185,8 +187,10 @@ namespace JBVProtocol
 	{
 		framing.Unstuff(data, len);
 	}
-
+*/
 }
+
+
 
 
 /*

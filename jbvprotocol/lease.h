@@ -41,7 +41,7 @@ namespace JBVProtocol
 
 		bool IsValid()
 		{
-			if (ExpirationDate == DateTime::Empty()) return false;
+			if (ExpirationDate == DateTime()) return false;
 			if (ExpirationDate < DateTime::Now()) return false;
 			if (Guid.IsEmpty()) return false;
 			return true;

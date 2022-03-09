@@ -126,12 +126,12 @@ public:
 
 
 
-inline bool operator==(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) == 0; }
-inline bool operator!=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) != 0; }
-inline bool operator< (DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) <  0; }
-inline bool operator> (DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) >  0; }
-inline bool operator<=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) <= 0; }
-inline bool operator>=(DateTime const &lhs, DateTime const &rhs) { return difftime(lhs.utc, rhs.utc) >= 0; }
+inline bool operator==(DateTime const &lhs, DateTime const &rhs) { return lhs.utc == rhs.utc; }
+inline bool operator!=(DateTime const &lhs, DateTime const &rhs) { return lhs.utc != rhs.utc; }
+inline bool operator<(DateTime const &lhs, DateTime const &rhs) { return lhs.utc < rhs.utc; }
+inline bool operator>(DateTime const &lhs, DateTime const &rhs) { return lhs.utc > rhs.utc; }
+inline bool operator<=(DateTime const &lhs, DateTime const &rhs) { return lhs.utc <= rhs.utc; }
+inline bool operator>=(DateTime const &lhs, DateTime const &rhs) { return lhs.utc >= rhs.utc; }
 
 
 inline TimeSpan operator-(DateTime const &lhs, DateTime const &rhs) { return TimeSpan::FromSeconds(lhs.utc - rhs.utc); }
