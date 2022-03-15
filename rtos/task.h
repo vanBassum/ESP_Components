@@ -31,7 +31,7 @@ namespace FreeRTOS
 			TaskType* t = static_cast<TaskType*>(parm);
 			if (t->_work.IsBound())
 				t->_work.Invoke(t, t->_arg);
-			t->taskHandle = NULL;
+			//t->taskHandle = NULL;
 			vTaskDelete(NULL);
 		}
 	protected:

@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <FreeRTOS.h>
-#include <stream_buffer.h>
-#include <message_buffer.h>
+#include <FreeRTOS/FreeRTOS.h>
+#include <FreeRTOS/stream_buffer.h>
+#include <FreeRTOS/message_buffer.h>
 
 namespace FreeRTOS
 {
