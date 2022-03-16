@@ -18,60 +18,78 @@ namespace FreeRTOS
 	class Timer
 	{
 		TimerHandle_t xTimer;
-
+		Callback<void, Timer*> callback;
 
 		static void tCallback(TimerHandle_t xTimer)
 		{
 			Timer* t = static_cast<Timer*>(pvTimerGetTimerID(xTimer));
 			//ESP_LOGI("Timer", "Elapsed '%s'", t->GetName());
-			t->OnTimerElapsed();
+			if (t->callback.IsBound())
+				t->callback.Invoke(t);
 		}
 
 
 	public:
 
-		Timer(const char* name, TickType_t period, bool autoReload = false)
-		{	period /= portTICK_PERIOD_MS;
-			if(period < 1)
-				period = 1;
-			xTimer = xTimerCreate(name, period, autoReload, this, &tCallback);
+		Timer()
+		{	
+
 		}
 
 		~Timer()
 		{
 			//todo: what if this fails???
-			xTimerDelete(xTimer, 0 );
+			xTimerDelete(xTimer, 0);
+		}
+		
+		void Init(const char* name, TickType_t period, bool autoReload = false)
+		{
+			period /= portTICK_PERIOD_MS;
+			if (period < 1)
+				period = 1;
+			xTimer = xTimerCreate(name, period, autoReload, this, &tCallback);
 		}
 
+		template<typename T>
+			void SetCallback(T* instance, void(T::* mp)(Timer*))
+			{
+				callback.Bind(instance, mp);
+			}
 
-		bool Start(int timeout=0)
+		void SetCallback(void(*fp)(Timer*))
+		{
+			callback.Bind(fp);
+		}
+
+		bool Start(int timeout = 0)
 		{
 			return xTimerStart(xTimer, timeout / portTICK_PERIOD_MS) == pdPASS;
 		}
 
-		bool Stop(int timeout=0)
+		bool Stop(int timeout = 0)
 		{
 			return xTimerStop(xTimer, timeout / portTICK_PERIOD_MS) == pdPASS;
 		}
 
-		bool Reset(int timeout=0)
+		bool Reset(int timeout = 0)
 		{
 			return xTimerReset(xTimer, timeout / portTICK_PERIOD_MS) == pdPASS;
 		}
 
 		bool IsRunning()
 		{
-			return xTimerIsTimerActive( xTimer ) != pdFALSE;
+			return xTimerIsTimerActive(xTimer) != pdFALSE;
 		}
 
-		bool SetPeriod(TickType_t period, int timeout=0)
-		{	period /= portTICK_PERIOD_MS;
-			if(period < 1)
+		bool SetPeriod(TickType_t period, int timeout = 0)
+		{
+			period /= portTICK_PERIOD_MS;
+			if (period < 1)
 				period = 1;
 			return xTimerChangePeriod(xTimer, period, timeout / portTICK_PERIOD_MS) == pdPASS;
 		}
 
-		TickType_t GetPeriod(int timeout=0)
+		TickType_t GetPeriod(int timeout = 0)
 		{
 			return xTimerGetPeriod(xTimer);
 		}
@@ -84,10 +102,11 @@ namespace FreeRTOS
 
 		TickType_t GetRemainingTime()
 		{
-			if(xTimerIsTimerActive(xTimer) != pdFALSE)
+			if (xTimerIsTimerActive(xTimer) != pdFALSE)
 			{
-				return ((xTimerGetExpiryTime( xTimer ) - xTaskGetTickCount()) * portTICK_PERIOD_MS);
-			} else
+				return ((xTimerGetExpiryTime(xTimer) - xTaskGetTickCount()) * portTICK_PERIOD_MS);
+			}
+			else
 			{
 				return 0;
 			}
@@ -95,12 +114,8 @@ namespace FreeRTOS
 
 		const char* GetName()
 		{
-			return pcTimerGetTimerName( xTimer );
+			return pcTimerGetTimerName(xTimer);
 		}
-
-
-		Event<> OnTimerElapsed;
-
 	};
 }
 
