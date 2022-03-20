@@ -17,7 +17,6 @@
 
 class DateTime
 {
-
 public:
 
 	time_t utc = 0;
@@ -60,8 +59,12 @@ public:
 
 	std::string ToString()
 	{
-		char buf[sizeof "2011-10-08T07:07:09Z"];
-		strftime(buf, sizeof buf, "%FT%TZ", localtime(&utc));
+		char buf[sizeof "2011-10-08T07:07:09+0100" + 1];
+		strftime(buf, sizeof buf, "%FT%T%z", gmtime(&utc));
+		buf[25] = '\0';
+		buf[24] = buf[23];
+		buf[23] = buf[22];
+		buf[22] = ':';
 		return buf;
 	}
 	
