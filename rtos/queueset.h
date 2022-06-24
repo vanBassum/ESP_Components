@@ -36,24 +36,18 @@ namespace FreeRTOS
 	{
 		QueueSetHandle_t xQueueSet;
 
-	public:
-
-
-		QueueSet(std::vector<QueueSetAddable*> items)
+	public:		
+		void Initialize(int size)
 		{
-			int totSize = 0;
-
-			for(auto it = items.begin(); it != items.end(); it++)
-				totSize += (*it)->GetSize();
-
-			xQueueSet = xQueueCreateSet(totSize);
-
-			for(auto it = items.begin(); it != items.end(); it++)
-				xQueueAddToSet((*it)->GetHandle(), xQueueSet);
-
+			xQueueSet = xQueueCreateSet(size);
 		}
 
-
+		void AddQueue(QueueSetAddable* item)
+		{
+			xQueueAddToSet(item->GetHandle(), xQueueSet);
+		}
+		
+		
 		bool Wait(int timeout)
 		{
 			return xQueueSelectFromSet(xQueueSet, timeout / portTICK_PERIOD_MS) != NULL;

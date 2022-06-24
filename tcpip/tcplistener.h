@@ -15,7 +15,7 @@
 
 #include "tcpsocket.h"
 #include "../misc/callback.h"
-#include "../freertos_cpp/task.h"
+#include "../rtos/task.h"
 
 class TCPListener
 {
@@ -31,10 +31,10 @@ private:
 	int port = 31600;
 	int keepAlive = 1;
 	int keepIdle = 5;
-	int keepInterval = 5;
+	int keepInterval = 60;
 	int keepCount = 3;
 
-	void Work(void *arg)
+	void Work(FreeRTOS::Task* task, void *arg)
 	{
 		if (addr_family == AF_INET)
 		{
@@ -63,12 +63,12 @@ private:
 				{
 					while(true)
 					{
-						//ESP_LOGI("TCPListener", "Socket listening");
+						ESP_LOGI("TCPListener", "Socket listening");
 						struct sockaddr_storage source_addr; // Large enough for both IPv4 or IPv6
 						socklen_t addr_len = sizeof(source_addr);
 						int acceptedsock = accept(sock, (struct sockaddr *)&source_addr, &addr_len);
 
-						//ESP_LOGI("TCPListener", "Socket accepted");
+						ESP_LOGI("TCPListener", "Socket accepted");
 
 						if(acceptedsock > 0)
 						{
@@ -117,22 +117,18 @@ private:
 	}
 
 
-	FreeRTOS::Task task = FreeRTOS::Task("TCPListener", 7, 2048, this, &TCPListener::Work);
+	FreeRTOS::Task task;
 
 public:
-
-
-
-
-
 	TCPListener()
 	{
-		task.Run(NULL);
+		task.SetCallback(this, &TCPListener::Work);
 	}
-
-
-
-
+	
+	void StartListener()
+	{
+		task.Run("TCPListener", 7, 1024*3);
+	}
 };
 
 

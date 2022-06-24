@@ -23,7 +23,8 @@ class TCPSocket
 {
 public:
 	Callback<void, TCPSocket*, uint8_t*, uint32_t> OnDataReceived;
-
+	Callback<void, TCPSocket*> OnDisconnected;
+	
 private:
 	FreeRTOS::NotifyableTask task;
 	FreeRTOS::SemaphoreBinary connectedSemph;
@@ -130,16 +131,17 @@ private:
 				else
 				{
 					//Error while receiving
-					switch (errno)
-					{
-					case 128:	//Disconnected, Happens when e disconnect
-						break;
-					case 9:		//Bad file number, Happens when e disconnect
-						break;
-					default:
-						ESP_LOGE("TCPConnection.h", "Error occurred during receiving: errno %d, %s", errno, strerror(errno));
-						break;
-					}
+					//switch (errno)
+					//{
+					//case 128:	//Disconnected, Happens when e disconnect
+					//	break;
+					//case 9:		//Bad file number, Happens when e disconnect
+					//	break;
+					//default:
+					//	
+					//	break;
+					//}
+					ESP_LOGE("TCPConnection.h", "Error occurred during receiving: errno %d, %s", errno, strerror(errno));
 					nextState = State::Cleanup;
 				}
 				break;
@@ -148,6 +150,8 @@ private:
 				shutdown(sock, 0);
 				close(sock);
 				vTaskDelay(1000 / portTICK_PERIOD_MS);
+				if(OnDisconnected.IsBound())
+					OnDisconnected.Invoke(this);
 				nextState = State::Disconnected;
 				break;
 
@@ -182,17 +186,8 @@ public:
 			int written = send(sock, data + (length - to_write), to_write, 0);
 			if (written < 0)
 			{
-				switch (errno)
-				{
-				case 119:
-					break;
-				case 9:
-					break;
-				default:
-					ESP_LOGE("TCPConnection.h", "Error occurred during sending: errno %d, %s", errno, strerror(errno));
-					break;
-				}
-				return;
+				ESP_LOGE("TCPConnection.h", "Error occurred during sending: errno %d, %s", errno, strerror(errno));
+				Disconnect();
 			}
 			to_write -= written;
 		}
@@ -209,9 +204,18 @@ public:
 		task.SetCallback(this, &TCPSocket::Work);
 		task.Run("TCPConnection", 6, 1024 * 2);
 	}
+	
+	TCPSocket(int socket)
+	{
+		sock = socket;
+		task.SetCallback(this, &TCPSocket::Work);
+		task.Run("TCPConnection", 6, 1024 * 2);
+		actState = State::Connected;
+	}
 
 	~TCPSocket()
 	{
+		ESP_LOGI("TCPSocket", "DTOR");
 		shutdown(sock, 0);
 		close(sock);
 	}
@@ -237,6 +241,8 @@ public:
 		this->autoReconnect = false;
 		shutdown(sock, 0);
 		close(sock);
+		if (OnDisconnected.IsBound())
+			OnDisconnected.Invoke(this);
 	}
 };
 

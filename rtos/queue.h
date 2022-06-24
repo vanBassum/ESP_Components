@@ -28,10 +28,9 @@ namespace FreeRTOS
 		int _size;
 	public:
 
-		Queue(int size)
+		Queue()
 		{
-			_size = size;
-			handle = xQueueCreate( size, sizeof( T ) );
+
 		}
 
 		~Queue()
@@ -39,6 +38,13 @@ namespace FreeRTOS
 			vQueueDelete( handle );
 		}
 
+		void Initialize(int size)
+		{
+			_size = size;
+			handle = xQueueCreate(size, sizeof(T));
+		}
+		
+		
 		int GetSize() {return _size;}
 		QueueSetMemberHandle_t GetHandle() {return (QueueSetMemberHandle_t)handle;}
 
