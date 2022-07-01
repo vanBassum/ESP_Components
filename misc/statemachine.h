@@ -38,20 +38,19 @@ public:
 
 class StateMachine
 {
+	TraceDebugger* tracer = NULL;
+	int traceNo = 0;
 	std::vector<StateItem*> states;
 	FreeRTOS::NotifyableTask task;
 	
-	bool GetStateItem(std::vector<StateItem*> states, uint32_t id, StateItem* stateItem)
+	StateItem* GetStateItem(std::vector<StateItem*> states, uint32_t id)
 	{
 		for (int i = 0; i < states.size(); i++)
 		{
 			if (id == states[i]->id)
-			{
-				*stateItem = *states[i];
-				return true;
-			}			
+				return states[i];
 		}
-		return false;
+		return NULL;
 	}
 	
 	void Work(FreeRTOS::NotifyableTask* task, void* args)
@@ -61,33 +60,51 @@ class StateMachine
 		statemachineInfo.onEntry = true;
 		statemachineInfo.delay = 1000;
 		
+		
+		StateItem* stateItem = NULL;
+		stateItem = GetStateItem(states, 0);
+		
 		while (true)
 		{
-			StateItem* stateItem = NULL;
+			
 			uint32_t notifications = 0;
 			task->WaitForNotification(&notifications, statemachineInfo.delay);
-			if (GetStateItem(states, statemachineInfo.actualState, stateItem))
+			
+			
+			if (stateItem != NULL)
 			{
 				if (stateItem->workCallback.IsBound())
 				{
 					stateItem->workCallback.Invoke(&statemachineInfo);
 				}
 			}
-			else
-			{
-				ESP_LOGE("StateMachine", "State with id %d not found!!!", statemachineInfo.actualState);
-			}
-			statemachineInfo.onEntry = false;
+
+			
 			if (statemachineInfo.actualState != statemachineInfo.nextState)
 			{
 				statemachineInfo.previousState = statemachineInfo.actualState;
 				statemachineInfo.actualState = statemachineInfo.nextState;
 				statemachineInfo.lastStateChange = DateTime::Now();
 				statemachineInfo.onEntry = true;
+				
+				if ((stateItem = GetStateItem(states, statemachineInfo.actualState)) != NULL)
+				{
+					ESP_LOGI("StateMachine", "State changed to %d, %s", stateItem->id, stateItem->name);
+					if (tracer != NULL)
+					{
+						tracer->SendMeasurementTest(statemachineInfo.lastStateChange.utc, statemachineInfo.actualState, traceNo);
+					}
+				}
+				else
+				{
+					ESP_LOGE("StateMachine", "State with id %d not found!!!", statemachineInfo.actualState);
+				}
+			}
+			else
+			{
+				statemachineInfo.onEntry = false;
 			}
 		}
-		
-		
 	}
 public:
 	StateMachine()
@@ -113,11 +130,20 @@ public:
 		if (tLen < len)
 			len = tLen;
 		memcpy(item->name, name, len);
+		states.push_back(item);
 	}
 
 	void Start(const char* name, portBASE_TYPE priority, portSHORT stackDepth, void* arg = NULL)
 	{
 		task.Run(name, priority, stackDepth, arg);
 	}
+	
+	void AttachTracer(TraceDebugger* tracer, int traceNo)
+	{
+		this->tracer = tracer;
+		this->traceNo = traceNo;
+	}
 
 };
+
+
