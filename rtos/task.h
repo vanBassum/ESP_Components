@@ -67,6 +67,18 @@ namespace FreeRTOS
 			_stackDepth = stackDepth;
 			xTaskCreate(&TaskFunction, _name, _stackDepth, this, _priority, &taskHandle);
 		}
+		
+		virtual void RunPinned(const char* name, portBASE_TYPE priority, portSHORT stackDepth, const BaseType_t core, void* arg = NULL)
+		{
+			if (stackDepth < configMINIMAL_STACK_SIZE)
+				stackDepth = configMINIMAL_STACK_SIZE;
+
+			_arg = arg;
+			_name = name;
+			_priority = priority;
+			_stackDepth = stackDepth;
+			xTaskCreatePinnedToCore(&TaskFunction, _name, _stackDepth, this, _priority, &taskHandle, core);
+		}
 	};
 
 
